@@ -1,3 +1,5 @@
+import time
+
 import pytest
 
 from app.models import Email
@@ -40,3 +42,9 @@ def test_multiple_rules_accumulate_reasons():
     assert len(r.reasons) == 2
     assert r.reasons[0].startswith("hidden_instruction")
     assert r.reasons[1].startswith("payment_language")
+
+
+def test_perf_hostile_whitespace_body():
+    start = time.perf_counter()
+    assert scan(make(body="update" + " " * 300_000)).verdict == "safe"
+    assert time.perf_counter() - start < 1

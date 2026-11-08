@@ -1,3 +1,7 @@
+import time
+
+import pytest
+
 from app.rules.payment import check_payment
 
 
@@ -22,3 +26,16 @@ def test_reason_prefix_and_distinct_phrases():
     reasons = check_payment("Wire transfer", "wire  TRANSFER now, plus gift card")
     assert len(reasons) == 2
     assert all(r.startswith("payment_language") for r in reasons)
+
+
+def test_my_pronoun_flagged():
+    for text in ("Please update my bank details", "change my banking account"):
+        r = check_payment("", text)
+        assert len(r) == 1 and r[0].startswith("payment_language")
+
+
+@pytest.mark.parametrize("ws", [" ", "\n"])
+def test_perf_whitespace_run_is_linear(ws):
+    start = time.perf_counter()
+    assert check_payment("", "update" + ws * 300_000) == []
+    assert time.perf_counter() - start < 1

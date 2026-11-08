@@ -5,7 +5,7 @@ _PATTERNS: list[tuple[str, re.Pattern[str]]] = [
     for p in (
         r"wire\s+transfer",
         r"gift\s+cards?",
-        r"(change|update)\s+(of\s+)?(our|your|the)?\s*bank(ing)?\s+(details|account)",
+        r"(change|update)\s+(?:of\s+)?(?:(?:our|your|the|my)\s+)?bank(?:ing)?\s+(?:details|account)",
     )
 ]
 
