@@ -4,7 +4,9 @@ from urllib.parse import urlsplit
 from app.domains import domain_matches
 from app.links import Anchor
 
-_DOMAIN_RE = re.compile(r"(?:https?://)?((?:[a-z0-9-]+\.)+[a-z]{2,})")
+_DOMAIN_RE = re.compile(
+    r"(?:https?://)?(?<![a-z0-9-])(?<![a-z0-9-]\.)((?:[a-z0-9-]+\.)+[a-z]{2,})"
+)  # lookbehinds: start only at the head of a label run, so long runs are scanned once
 
 
 def _host(href: str) -> str | None:

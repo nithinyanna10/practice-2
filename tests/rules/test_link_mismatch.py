@@ -1,3 +1,5 @@
+import time
+
 from app.links import Anchor
 from app.rules.link_mismatch import check_link_mismatch
 
@@ -50,3 +52,19 @@ def test_one_reason_per_mismatching_anchor():
 
 def test_bad_anchor_skipped_not_crashing():
     assert check_link_mismatch([Anchor("https://[bad/x", "bank.com"), Anchor("notaurl", "bank.com")]) == []
+
+
+def test_perf_long_text_without_dot():
+    start = time.perf_counter()
+    assert check_link_mismatch([Anchor("https://evil.io", "a" * 200_000)]) == []
+    assert time.perf_counter() - start < 1
+
+
+def test_perf_long_dotted_text():
+    start = time.perf_counter()
+    assert check_link_mismatch([Anchor("https://evil.io", "a." * 100_000)]) == []
+    assert time.perf_counter() - start < 1
+
+
+def test_leading_dot_domain_still_flagged():
+    assert check_link_mismatch([Anchor("https://evil.io", ".paypal.com")])
