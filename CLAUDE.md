@@ -17,3 +17,8 @@
 # Code
 - Python 3, type hints, small functions, pytest for every behavior.
 - No real network calls in tests; mock them.
+
+# Review speed
+- One review per task, keep it short.
+- Final whole-branch review: report findings only. Fix Critical issues;
+  list Important/Minor ones for me to decide. Don't start a fix wave on your own.
