@@ -2,11 +2,11 @@ import re
 
 _ZERO_END = r"\s*(?:;|\"|'|!|$)"
 # Both conditions must sit inside one style="..." attribute, in either order.
-_STYLE = r"style\s*=\s*[\"'](?=[^\"']*{a})(?=[^\"']*{b})"
+_STYLE = r"style\s*=\s*([\"'])(?=(?:(?!\1).)*?{a})(?=(?:(?!\1).)*?{b})"
 _WHITE = r"#fff(?:fff)?\b|white\b"
 
 _PATTERNS: list[tuple[str, re.Pattern[str]]] = [
-    (label, re.compile(rx, re.IGNORECASE))
+    (label, re.compile(rx, re.IGNORECASE | re.DOTALL))
     for label, rx in [
         ("ignore_previous_instructions", r"ignore\s+(all\s+)?(previous|prior)\s+instructions"),
         ("disregard_previous_instructions", r"disregard\s+(all\s+)?(previous|prior)\s+instructions"),

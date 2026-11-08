@@ -70,3 +70,23 @@ def test_reasons_start_with_label_and_name_the_trick():
 def test_one_reason_per_distinct_pattern():
     body = '<i style="display:none">a</i><i style="display:none">b</i>'
     assert len(check_injection(body)) == 1
+
+
+def test_offscreen_with_quoted_font_name_flagged():
+    assert check_injection(
+        '<div style="font-family:\'Arial\'; position:absolute; left:-9999px">x</div>'
+    )
+
+
+def test_white_on_white_with_quoted_font_name_flagged():
+    assert check_injection(
+        '<div style="font-family:\'Arial\'; color:#fff; background:#fff">x</div>'
+    )
+    assert check_injection(
+        "<div style='font-family:\"Arial\"; color:#fff; background:#fff'>x</div>"
+    )
+
+
+def test_declarations_in_different_attributes_not_combined():
+    assert check_injection('<div style="position:absolute"><p style="left:-9999px">x</p></div>') == []
+    assert check_injection('<b style="color:#fff"><i style="background:#fff">x</i></b>') == []
