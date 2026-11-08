@@ -9,7 +9,7 @@ class Email(BaseModel):
     from_: str = Field(alias="from")
     display_name: str
     subject: str
-    body: str
+    body: str = Field(max_length=1_000_000)
 
 
 class ScanResult(BaseModel):

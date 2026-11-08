@@ -33,3 +33,18 @@ def test_api_end_to_end_suspicious():
     assert data["verdict"] == "suspicious"
     assert data["links"]
     assert data["reasons"][0].startswith("sender_impersonation")
+
+
+def _post(body: str):
+    return client.post(
+        "/emails/scan",
+        json={"from": "a@b.com", "display_name": "A", "subject": "s", "body": body},
+    )
+
+
+def test_body_at_cap_accepted():
+    assert _post("a" * 1_000_000).status_code == 200
+
+
+def test_body_over_cap_is_422():
+    assert _post("a" * 1_000_001).status_code == 422
