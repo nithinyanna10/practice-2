@@ -36,12 +36,16 @@ def _valid(url: str) -> bool:
 
 def _strip_trailing(url: str) -> str:
     # A closing bracket is kept when it balances an opener inside the URL, e.g. Foo_(bar).
-    while url and url[-1] in _TRAILING:
-        c = url[-1]
-        if c in _PAIRS and url.count(_PAIRS[c]) >= url.count(c):
+    counts = {c: url.count(c) for c in "()[]{}"}  # counted once: linear on hostile input
+    end = len(url)
+    while end and url[end - 1] in _TRAILING:
+        c = url[end - 1]
+        if c in _PAIRS and counts[_PAIRS[c]] >= counts[c]:
             break
-        url = url[:-1]
-    return url
+        if c in counts:
+            counts[c] -= 1
+        end -= 1
+    return url[:end]
 
 
 def _href(raw: str | None) -> str | None:

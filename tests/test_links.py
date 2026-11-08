@@ -1,3 +1,5 @@
+import time
+
 from app.links import Anchor, extract_anchors, extract_links
 
 
@@ -68,3 +70,16 @@ def test_invalid_hosts_dropped_without_raising():
     body = '<a href="http://[">x</a><a href="https://">y</a> and https:// and http://['
     assert extract_links(body) == []
     assert extract_anchors(body) == []
+
+
+def test_trailing_bracket_balance_preserved():
+    assert extract_links("https://a.com/Foo_(bar).") == ["https://a.com/Foo_(bar)"]
+    assert extract_links("(see https://a.com/x).") == ["https://a.com/x"]
+    assert extract_links("https://a.com/x]") == ["https://a.com/x"]
+    assert extract_links("https://a.com/x}.") == ["https://a.com/x"]
+
+
+def test_perf_many_trailing_closers():
+    start = time.perf_counter()
+    assert extract_links("see https://a.com/x" + ")" * 150_000 + " ok") == ["https://a.com/x"]
+    assert time.perf_counter() - start < 1
