@@ -46,5 +46,8 @@ def test_body_at_cap_accepted():
     assert _post("a" * 1_000_000).status_code == 200
 
 
-def test_body_over_cap_is_422():
-    assert _post("a" * 1_000_001).status_code == 422
+def test_body_over_cap_is_suspicious_not_422():
+    r = _post("a" * 1_000_001)
+    assert r.status_code == 200
+    assert r.json()["verdict"] == "suspicious"
+    assert "body_too_large" in r.json()["reasons"]

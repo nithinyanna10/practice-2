@@ -48,3 +48,27 @@ def test_perf_hostile_whitespace_body():
     start = time.perf_counter()
     assert scan(make(body="update" + " " * 300_000)).verdict == "safe"
     assert time.perf_counter() - start < 1
+
+
+CAP = 1_000_000
+
+
+def test_body_at_cap_is_safe():
+    r = scan(make(body="a" * CAP))
+    assert r.verdict == "safe" and r.reasons == []
+
+
+def test_body_over_cap_is_suspicious():
+    r = scan(make(body="a" * (CAP + 1)))
+    assert r.verdict == "suspicious" and r.reasons == ["body_too_large"]
+
+
+def test_content_beyond_cap_is_not_scanned():
+    r = scan(make(body="a" * CAP + " wire transfer https://evil.io/x"))
+    assert r.reasons == ["body_too_large"] and r.links == []
+
+
+def test_content_inside_cap_still_scanned_when_oversized():
+    r = scan(make(body="wire transfer " + "a" * CAP))
+    assert r.reasons[0].startswith("payment_language")
+    assert r.reasons[-1] == "body_too_large"
