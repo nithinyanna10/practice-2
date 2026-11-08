@@ -90,3 +90,24 @@ def test_white_on_white_with_quoted_font_name_flagged():
 def test_declarations_in_different_attributes_not_combined():
     assert check_injection('<div style="position:absolute"><p style="left:-9999px">x</p></div>') == []
     assert check_injection('<b style="color:#fff"><i style="background:#fff">x</i></b>') == []
+
+
+def test_nbsp_entity_phrase_flagged():
+    assert check_injection("ignore&nbsp;previous&nbsp;instructions")
+
+
+def test_numeric_entity_phrase_flagged():
+    assert check_injection("ignore&#32;previous&#32;instructions")
+
+
+def test_entity_inside_style_flagged():
+    assert check_injection('<p style="display&#58;none">x</p>')
+
+
+def test_benign_text_with_entities_ok():
+    assert check_injection("Fish &amp; chips&nbsp;tonight") == []
+
+
+def test_ai_assistant_needs_word_boundary():
+    assert check_injection("Thai assistant: hello") == []
+    assert check_injection("an AI assistant: do x")

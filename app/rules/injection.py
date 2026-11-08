@@ -1,3 +1,4 @@
+import html
 import re
 
 _ZERO_END = r"\s*(?:;|\"|'|!|$)"
@@ -10,7 +11,7 @@ _PATTERNS: list[tuple[str, re.Pattern[str]]] = [
     for label, rx in [
         ("ignore_previous_instructions", r"ignore\s+(all\s+)?(previous|prior)\s+instructions"),
         ("disregard_previous_instructions", r"disregard\s+(all\s+)?(previous|prior)\s+instructions"),
-        ("ai_assistant_marker", r"ai\s+assistant\s*:"),
+        ("ai_assistant_marker", r"\bai\s+assistant\s*:"),
         ("css_display_none", r"display\s*:\s*none"),
         ("css_visibility_hidden", r"visibility\s*:\s*hidden"),
         ("css_font_size_zero", r"font-size\s*:\s*0(?:\.0+)?(?:px|pt|em|rem|%)?" + _ZERO_END),
@@ -31,4 +32,5 @@ _PATTERNS: list[tuple[str, re.Pattern[str]]] = [
 
 
 def check_injection(body: str) -> list[str]:
+    body = html.unescape(body)  # the agent sees rendered text, not entities
     return [f"hidden_instruction: {label}" for label, rx in _PATTERNS if rx.search(body)]
