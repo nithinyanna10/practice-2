@@ -41,3 +41,30 @@ def test_first_seen_order_and_path_case_kept():
 
 def test_anchor_non_http_skipped():
     assert extract_anchors('<a href="/rel">r</a><a>no href</a>') == []
+
+
+def test_href_ending_in_closing_paren_listed_once_untruncated():
+    url = "https://en.wikipedia.org/wiki/Foo_(bar)"
+    assert extract_links(f'<a href="{url}">{url}</a>') == [url]
+
+
+def test_href_ending_in_period_listed_once():
+    assert extract_links('<a href="https://a.com/x.">link</a>') == ["https://a.com/x."]
+
+
+def test_href_with_quote_listed_once():
+    assert extract_links('<a href="https://a.com/it\'s">link</a>') == ["https://a.com/it's"]
+
+
+def test_nbsp_after_plain_text_url_does_not_glue():
+    assert extract_links("<p>Visit https://a.com/x&nbsp;now</p>") == ["https://a.com/x"]
+
+
+def test_entity_brackets_do_not_glue():
+    assert extract_links("<p>https://a.com/x&lt;b&gt;</p>") == ["https://a.com/x"]
+
+
+def test_invalid_hosts_dropped_without_raising():
+    body = '<a href="http://[">x</a><a href="https://">y</a> and https:// and http://['
+    assert extract_links(body) == []
+    assert extract_anchors(body) == []
